@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <title>SteveGIS</title>
+</head>
+
+<body>
+  <!-- ===== HEADER ===== -->
+  <header class="header">
+    <a href="#" class="logo"><strong>Steve ++</strong></a>
+
+    <nav class="navbar">
+      <a href="#home" class="active"><strong>Home</strong></a>
+      <a href="#about"><strong>About</strong></a>
+      <a href="#services"><strong>Services</strong></a>
+      <a href="#works"><strong>My Works</strong></a>
+      <a href="#contact"><strong>Let's Talk</strong></a>
+    </nav>
+  </header>
+
+  <!-- ===== HOME SECTION ===== -->
+  <section class="home" id="home">
+    <div class="home-content">
+      <h1>Hi, I'm Steve</h1>
+      <h3>Geospatial Analyst & Aspiring Web Developer</h3>
+      <p>
+        Passionate about using technology to analyze spatial data and build innovative web
+        solutions. I hold a Bachelor's Degree in Geography & Resource Development from the University of Ghana, with a focus on Remote Sensing & GIS.  
+        Currently, I'm expanding my skills in modern web development – blending geospatial expertise with web technologies to create meaningful digital solutions.  
+        Let's build something impactful together!
+      </p>
+      <div class="btn-box">
+        <a href="#services">Hire Me</a>
+        <a href="#contact">Let's Talk</a>
+      </div>
+    </div>
+
+    <div class="home-image">
+      <img src="images/steve-photo.jpg" alt="Steve - Professional Photo" />
+    </div>
+
+    <div class="home-sci">
+      <a href="mailto:thisisarhin@gmail.com"><i class='bx bx-envelope'></i></a>
+      <a href="https://www.linkedin.com/in/steve-arhin-7a5b8229b" target="_blank"><i class='bx bxl-linkedin'></i></a>
+      <a href="https://wa.me/233273539598" target="_blank"><i class='bx bxl-whatsapp'></i></a>
+    </div>
+  </section>
+
+  <!-- ===== ABOUT SECTION ===== -->
+  <section class="about" id="about">
+    <h2 class="section-title">About Me</h2>
+    <div class="about-content">
+      <p>
+        I'm Steve, a Geospatial Analyst with a passion for problem-solving through technology.
+        My academic and professional journey has equipped me with skills in spatial data analysis, 
+        remote sensing, GIS, and environmental research.  
+        <br><br>
+        Alongside geospatial science, I'm building strong foundations in web development (HTML, CSS, JavaScript) 
+        to create modern, responsive applications. I believe the combination of GIS and web development can drive 
+        innovative solutions for urban planning, disaster management, and sustainability.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== MY WORKS SECTION ===== -->
+  <section class="works" id="works">
+    <h2 class="section-title">My Works & Projects</h2>
+    
+    <div class="works-filter">
+      <button class="filter-btn active" onclick="filterWorks('all')">All</button>
+      <button class="filter-btn" onclick="filterWorks('maps')">Maps & Cartography</button>
+      <button class="filter-btn" onclick="filterWorks('analysis')">Spatial Analysis</button>
+      <button class="filter-btn" onclick="filterWorks('research')">Research Papers</button>
+      <button class="filter-btn" onclick="filterWorks('web')">Web Projects</button>
+      <button class="filter-btn" onclick="filterWorks('other')">Other</button>
+    </div>
+
+    <div class="works-grid" id="worksGrid">
+      <div class="empty-state">
+        <i class='bx bx-folder-open'></i>
+        <h3>No works uploaded yet</h3>
+        <p>Click the admin button to start uploading!</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SERVICES SECTION ===== -->
+  <section class="services" id="services">
+    <h2 class="section-title">Services</h2>
+    <div class="services-container">
+      <div class="service-box">
+        <i class='bx bx-map'></i>
+        <h3>Geospatial Analysis</h3>
+        <p>Spatial data processing, land use/land cover analysis, flood risk mapping, and decision support using GIS & Remote Sensing.</p>
+      </div>
+
+      <div class="service-box">
+        <i class='bx bx-globe'></i>
+        <h3>Research & Data Visualization</h3>
+        <p>Transforming raw geospatial data into actionable insights through clear maps, charts, and reports.</p>
+      </div>
+
+      <div class="service-box">
+        <i class='bx bx-code-alt'></i>
+        <h3>Web Development</h3>
+        <p>Building responsive and modern websites. Exploring GeoWeb apps to make geospatial insights more accessible online.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CONTACT SECTION ===== -->
+  <section class="contact" id="contact">
+    <h2 class="section-title">Let's Talk</h2>
+    <p>Interested in working together? Reach out via any of the platforms below:</p>
+    
+    <div class="contact-socials">
+      <a href="mailto:thisisarhin@gmail.com" target="_blank"><i class='bx bx-envelope'></i></a>
+      <a href="https://www.linkedin.com/in/steve-arhin-7a5b8229b" target="_blank"><i class='bx bxl-linkedin'></i></a>
+      <a href="https://wa.me/233273539598" target="_blank"><i class='bx bxl-whatsapp'></i></a>
+    </div>
+  </section>
+
+  <!-- ===== ADMIN PANEL (Hidden) ===== -->
+  <div class="admin-panel" id="adminPanel" style="display: none;">
+    <button class="close-admin" onclick="toggleAdminPanel()"><i class='bx bx-x'></i></button>
+    <h2><i class='bx bx-upload'></i> Upload New Work</h2>
+    
+    <!-- STORAGE SELECTION -->
+    <div class="admin-dashboard" style="margin-bottom: 2rem;">
+      <h3>Storage</h3>
+      <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+        <button onclick="useGitHubMode()" style="flex: 1; padding: 10px; background: #333; border: none; color: #fff; border-radius: 5px; cursor: pointer; font-weight: 600; font-family: 'Poppins', sans-serif;">
+          <i class='bx bxl-github'></i> GitHub
+        </button>
+        <button onclick="useAlternativeStorage()" style="flex: 1; padding: 10px; background: #56a7f2; border: none; color: #fff; border-radius: 5px; cursor: pointer; font-weight: 600; font-family: 'Poppins', sans-serif;">
+          <i class='bx bx-hdd'></i> Browser
+        </button>
+      </div>
+      <div class="dashboard-stats">
+        <div><strong>Site Visits:</strong> <span id="visitCount">0</span></div>
+        <div><strong>Storage Mode:</strong> <span id="storageMode">Not Selected</span></div>
+      </div>
+    </div>
+
+    <!-- UPLOAD FORM -->
+    <form class="admin-form" onsubmit="uploadWork(event)">
+      <div class="form-group">
+        <label for="workTitle">Title</label>
+        <input type="text" id="workTitle" required>
+      </div>
+      <div class="form-group">
+        <label for="workDescription">Description</label>
+        <textarea id="workDescription" required></textarea>
+      </div>
+      <div class="form-group">
+        <label for="workType">Category</label>
+        <select id="workType" required>
+          <option value="maps">Maps & Cartography</option>
+          <option value="analysis">Spatial Analysis</option>
+          <option value="research">Research Papers</option>
+          <option value="web">Web Projects</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Upload File</label>
+        <div class="file-upload">
+          <input type="file" id="workFile" accept=".png,.jpg,.jpeg,.pdf,.doc,.docx" required style="display: none;">
+          <div class="file-upload-btn" onclick="document.getElementById('workFile').click();">
+            <i class='bx bx-cloud-upload'></i>
+            <span id="fileLabel">Choose File (PNG, JPG, PDF, DOC)</span>
+          </div>
+        </div>
+      </div>
+      <button type="submit" class="upload-btn">Upload</button>
+    </form>
+  </div>
+
+  <!-- ===== MODAL FOR VIEWING FILES ===== -->
+  <div class="modal" id="fileModal">
+    <div class="modal-content" id="modalBody"></div>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <p>&copy; 2025 Steve ++ | All Rights Reserved</p>
+  </footer>
+
+  <!-- Main Scripts -->
+  <script src="script.js"></script>
+  <script src="github_storage.js"></script>
+</body>
+</html>
