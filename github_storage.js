@@ -235,7 +235,7 @@ async function loadFromGitHub() {
         <div class="empty-state">
           <i class='bx bx-folder-open'></i>
           <h3>No works uploaded yet</h3>
-          <p>Upload your first project to GitHub!</p>
+          <p>Coming soon!</p>
         </div>
       `;
       return;
