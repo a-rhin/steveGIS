@@ -15,12 +15,18 @@
   <header class="header">
     <a href="#" class="logo"><strong>Steve ++</strong></a>
 
+    <div class="menu-toggle" onclick="toggleMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
     <nav class="navbar">
-      <a href="#home" class="active"><strong>Home</strong></a>
-      <a href="#about"><strong>About</strong></a>
-      <a href="#services"><strong>Services</strong></a>
-      <a href="#works"><strong>My Works</strong></a>
-      <a href="#contact"><strong>Let's Talk</strong></a>
+      <a href="#home" class="active" onclick="closeMenu()"><strong>Home</strong></a>
+      <a href="#about" onclick="closeMenu()"><strong>About</strong></a>
+      <a href="#services" onclick="closeMenu()"><strong>Services</strong></a>
+      <a href="#works" onclick="closeMenu()"><strong>My Works</strong></a>
+      <a href="#contact" onclick="closeMenu()"><strong>Let's Talk</strong></a>
     </nav>
   </header>
 

@@ -459,6 +459,21 @@ function downloadAlternativeWork(workId) {
 
 // ===== SHARED FUNCTIONS =====
 
+// Mobile menu toggle
+function toggleMenu() {
+  const navbar = document.querySelector('.navbar');
+  const menuToggle = document.querySelector('.menu-toggle');
+  navbar.classList.toggle('active');
+  menuToggle.classList.toggle('active');
+}
+
+function closeMenu() {
+  const navbar = document.querySelector('.navbar');
+  const menuToggle = document.querySelector('.menu-toggle');
+  navbar.classList.remove('active');
+  menuToggle.classList.remove('active');
+}
+
 function filterWorks(type) {
   const workItems = document.querySelectorAll('.work-item');
   const filterBtns = document.querySelectorAll('.filter-btn');
