@@ -64,12 +64,12 @@ body {
 }
 
 .home {
-  height: 100vh;
+  min-height: 100vh;
   background: linear-gradient(135deg, #11385f 0%, #1a4971 50%, #234a73 100%);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 10%;
+  padding: 100px 10% 50px;
   position: relative;
 }
 
@@ -761,19 +761,37 @@ footer p {
   cursor: pointer;
 }
 
-/* Mobile Responsiveness */
+/* ===== MOBILE RESPONSIVENESS ===== */
 @media (max-width: 768px) {
   .header {
     padding: 15px 5%;
+    flex-wrap: wrap;
+  }
+
+  .logo {
+    font-size: 24px;
+  }
+
+  .navbar {
+    width: 100%;
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
   }
 
   .navbar a {
     font-size: 14px;
-    margin-left: 20px;
+    margin-left: 0;
+    padding: 8px 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
   }
 
   .home {
-    padding: 0 5%;
+    min-height: auto;
+    padding: 120px 5% 50px;
     text-align: center;
     flex-direction: column;
     gap: 30px;
@@ -797,7 +815,7 @@ footer p {
   }
 
   .home-content h3 {
-    font-size: 24px;
+    font-size: 20px;
   }
 
   .home-content p {
@@ -807,11 +825,12 @@ footer p {
   .btn-box {
     flex-direction: column;
     align-items: center;
+    gap: 15px;
   }
 
   .btn-box a {
-    width: 200px;
-    margin-bottom: 15px;
+    width: 100%;
+    max-width: 250px;
   }
 
   .home-sci {
@@ -827,11 +846,20 @@ footer p {
   }
 
   .section-title {
-    font-size: 36px;
+    font-size: 32px;
+  }
+
+  .about-content p {
+    font-size: 16px;
   }
 
   .services-container {
     grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .service-box {
+    padding: 30px 20px;
   }
 
   .contact-socials {
@@ -841,16 +869,65 @@ footer p {
 
   .works-filter {
     gap: 10px;
+    padding: 0 10px;
   }
 
   .filter-btn {
     padding: 8px 16px;
-    font-size: 14px;
+    font-size: 13px;
+  }
+
+  .works-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
   }
 
   .admin-panel {
     width: 100%;
     right: -100%;
+    padding: 70px 20px 20px;
+  }
+
+  .modal-content {
+    padding: 20px;
+    max-width: 95%;
+  }
+}
+
+/* Tablet Responsiveness */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .header {
+    padding: 15px 5%;
+  }
+
+  .navbar a {
+    margin-left: 20px;
+    font-size: 14px;
+  }
+
+  .home {
+    padding: 100px 5% 50px;
+  }
+
+  .home-image img {
+    width: 300px;
+    height: 300px;
+  }
+
+  .home-content h1 {
+    font-size: 42px;
+  }
+
+  .home-content h3 {
+    font-size: 24px;
+  }
+
+  .services-container {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+
+  .works-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   }
 }
 
