@@ -461,17 +461,25 @@ function downloadAlternativeWork(workId) {
 
 // Mobile menu toggle
 function toggleMenu() {
-  const navbar = document.querySelector('.navbar');
-  const menuToggle = document.querySelector('.menu-toggle');
-  navbar.classList.toggle('active');
-  menuToggle.classList.toggle('active');
+  const navbar = document.getElementById('navbar');
+  const menuToggle = document.getElementById('menuToggle');
+  
+  if (navbar && menuToggle) {
+    navbar.classList.toggle('active');
+    menuToggle.classList.toggle('active');
+    console.log('Menu toggled');
+  }
 }
 
 function closeMenu() {
-  const navbar = document.querySelector('.navbar');
-  const menuToggle = document.querySelector('.menu-toggle');
-  navbar.classList.remove('active');
-  menuToggle.classList.remove('active');
+  const navbar = document.getElementById('navbar');
+  const menuToggle = document.getElementById('menuToggle');
+  
+  if (navbar && menuToggle) {
+    navbar.classList.remove('active');
+    menuToggle.classList.remove('active');
+    console.log('Menu closed');
+  }
 }
 
 function filterWorks(type) {
@@ -504,6 +512,8 @@ window.closeModal = closeModal;
 window.viewAlternativeWork = viewAlternativeWork;
 window.downloadAlternativeWork = downloadAlternativeWork;
 window.logoutAdmin = logoutAdmin;
+window.toggleMenu = toggleMenu;
+window.closeMenu = closeMenu;
 
 console.log(`
 🔧 PORTFOLIO LOADED
