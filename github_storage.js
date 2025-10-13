@@ -10,127 +10,28 @@ const GITHUB_CONFIG = {
 let isGitHubConfigured = false;
 let githubWorks = []; // Store works data
 
-// Load saved config from localStorage (for admin token only)
+// Load saved config from sessionStorage or localStorage (for admin token only)
 function loadGitHubConfig() {
-  const savedConfig = localStorage.getItem('githubConfig');
-  if (savedConfig) {
-    const config = JSON.parse(savedConfig);
-    GITHUB_CONFIG.token = config.token;  // Only load token for admin
-    GITHUB_CONFIG.branch = config.branch || 'main';
+  let token = sessionStorage.getItem('githubToken');  // Check session first (from login)
+  if (!token) {
+    const savedConfig = localStorage.getItem('githubConfig');
+    if (savedConfig) {
+      const config = JSON.parse(savedConfig);
+      token = config.token;
+    }
+  }
+  if (token) {
+    GITHUB_CONFIG.token = token;
     isGitHubConfigured = true;
-    console.log('✅ Loaded GitHub token from localStorage (for admin)');
+    console.log('✅ Loaded GitHub token (for admin)');
     return true;
   }
   return false;
 }
 
-// Setup GitHub credentials (for token only, since username/repo are hard-coded)
-function setupGitHub() {
-  const modal = document.createElement('div');
-  modal.id = 'githubSetupModal';
-  modal.style.cssText = `
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.8); z-index: 3000; display: flex;
-    align-items: center; justify-content: center;
-  `;
+// No separate setup—handled in login
 
-  modal.innerHTML = `
-    <div style="background: #11385f; padding: 40px; border-radius: 15px; max-width: 500px; width: 90%;">
-      <h2 style="color: #6cc4f7; margin-bottom: 30px; text-align: center;">
-        <i class='bx bxl-github' style="font-size: 32px;"></i><br>
-        GitHub Setup (Token Only)
-      </h2>
-
-      <div style="margin-bottom: 20px;">
-        <label style="display: block; color: #fff; margin-bottom: 8px; font-weight: 500;">
-          Personal Access Token
-        </label>
-        <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxx"
-               style="width: 100%; padding: 12px; border: 2px solid rgba(255,255,255,0.2);
-                      border-radius: 8px; background: rgba(255,255,255,0.1); color: #fff;
-                      font-family: 'Poppins', sans-serif;">
-      </div>
-
-      <p style="margin-bottom: 20px; color: rgba(255,255,255,0.8);">
-        Username and repo are pre-configured. Enter token for uploads/deletes.
-      </p>
-
-      <div style="display: flex; gap: 15px;">
-        <button onclick="saveGitHubConfig()"
-                style="flex: 1; padding: 12px; background: linear-gradient(45deg, #56a7f2, #6cc4f7);
-                       border: none; color: #fff; border-radius: 8px; font-weight: 600;
-                       cursor: pointer; font-family: 'Poppins', sans-serif;">
-          Save & Test
-        </button>
-        <button onclick="closeGitHubModal()"
-                style="flex: 1; padding: 12px; background: transparent; border: 2px solid #6cc4f7;
-                       color: #6cc4f7; border-radius: 8px; font-weight: 600; cursor: pointer;
-                       font-family: 'Poppins', sans-serif;">
-          Cancel
-        </button>
-      </div>
-
-      <div style="margin-top: 20px; padding: 15px; background: rgba(108, 196, 247, 0.1);
-                  border-radius: 8px; font-size: 13px; color: rgba(255,255,255,0.8);">
-        <strong>How to get a Personal Access Token:</strong><br>
-        1. Go to github.com → Settings → Developer settings<br>
-        2. Click "Personal access tokens" → "Tokens (classic)"<br>
-        3. Click "Generate new token (classic)"<br>
-        4. Select scopes: <code style="background: rgba(0,0,0,0.3); padding: 2px 4px; border-radius: 3px;">repo</code><br>
-        5. Copy token (starts with ghp_)<br><br>
-        <strong>Notes:</strong><br>
-        • Files stored as base64 in JSON<br>
-        • Max 100MB per file (GitHub limit)
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-}
-
-// Save GitHub configuration (token only)
-function saveGitHubConfig() {
-  const token = document.getElementById('githubToken').value.trim();
-
-  if (!token) {
-    alert('Please enter your token');
-    return;
-  }
-
-  GITHUB_CONFIG.token = token;
-
-  // Save token to localStorage
-  localStorage.setItem('githubConfig', JSON.stringify({
-    token,
-    branch: GITHUB_CONFIG.branch
-  }));
-
-  testGitHubConnection().then(success => {
-    if (success) {
-      alert('✅ GitHub connected successfully!');
-      closeGitHubModal();
-
-      const storageMode = document.getElementById('storageMode');
-      if (storageMode) storageMode.textContent = 'GitHub';
-
-      window.uploadWork = uploadToGitHub;
-      window.loadWorks = loadFromGitHub;
-      loadFromGitHub();
-    } else {
-      alert('❌ GitHub connection failed. Check your credentials.');
-    }
-  });
-}
-
-// Close GitHub modal
-function closeGitHubModal() {
-  const modal = document.getElementById('githubSetupModal');
-  if (modal && modal.parentNode) {
-    document.body.removeChild(modal);
-  }
-}
-
-// Test GitHub connection
+// Test GitHub connection (called if needed)
 async function testGitHubConnection() {
   try {
     const response = await fetch(`https://api.github.com/user`, {
@@ -215,8 +116,7 @@ async function uploadToGitHub(event) {
   console.log('📤 GitHub upload started');
 
   if (!isGitHubConfigured || !GITHUB_CONFIG.token) {
-    alert('Please configure GitHub token first');
-    setupGitHub();
+    alert('GitHub token not set. Please log in as admin again.');
     return;
   }
 
@@ -312,17 +212,21 @@ async function loadFromGitHub() {
       </div>
     `;
 
-    // Fetch without token for public access
+    // Check if admin is authenticated (from script.js)
+    const isAdmin = typeof isAdminAuthenticated !== 'undefined' && isAdminAuthenticated;
+
+    // Fetch without token for public access, with cache-buster
     const headers = {
       'Accept': 'application/vnd.github.v3+json'
     };
-    // Only add token if available (for admin rate limits)
-    if (GITHUB_CONFIG.token) {
+    // Only add token if admin is authenticated AND token exists
+    if (isAdmin && GITHUB_CONFIG.token) {
       headers['Authorization'] = `token ${GITHUB_CONFIG.token}`;
     }
 
+    const cacheBuster = `?t=${Date.now()}`;
     const response = await fetch(
-      `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/works`,
+      `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/works${cacheBuster}`,
       { headers }
     );
 
@@ -343,12 +247,22 @@ async function loadFromGitHub() {
 
     const files = await response.json();
     githubWorks = [];
+    const seenIds = new Set(); // Track unique work IDs to prevent duplicates
 
     for (const file of files) {
       if (file.name.endsWith('.json')) {
         try {
-          const fileResponse = await fetch(file.download_url);
+          const fileResponse = await fetch(`${file.download_url}?t=${Date.now()}`);  // Cache-buster for individual files
           const workData = await fileResponse.json();
+          
+          // Skip if we've already loaded this work (by ID or title+uploadDate)
+          const uniqueKey = workData.id || `${workData.title}_${workData.uploadDate}`;
+          if (seenIds.has(uniqueKey)) {
+            console.log(`Skipping duplicate work: ${workData.title}`);
+            continue;
+          }
+          seenIds.add(uniqueKey);
+          
           workData.sha = file.sha;      // For delete
           workData.filePath = file.path; // For delete
           githubWorks.push(workData);
@@ -375,6 +289,9 @@ async function loadFromGitHub() {
     githubWorks.forEach((work, index) => {
       const previewSrc = work.isImage ? work.base64Data : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEzIDJMMTMuMDkgMi4yNkwyMC4yMiA5LjY3TDIwLjc4IDEwLjIzTDIxIDExVjIwQTIgMiAwIDAgMSAxOSAyMkg1QTIgMiAwIDAgMSAzIDIwVjRDMiAyIDAgMCAxIDUgMkgxM1pNMTkgMTFIMTVBMiAyIDAgMCAxIDEzIDlWNUg1VjIwSDE5VjExWk0xNSA5SDE4LjVMMTUgNS41Vjlask0iIGZpbGw9IiM2Y2M0ZjciLz4KPHN2Zz4K';
 
+      // Check if admin is currently authenticated for delete button
+      const showDelete = typeof isAdminAuthenticated !== 'undefined' && isAdminAuthenticated && GITHUB_CONFIG.token;
+
       worksHTML += `
         <div class="work-item" data-type="${work.type}">
           <img src="${previewSrc}" alt="${work.title}" style="width: 100%; height: 250px; object-fit: ${work.isImage ? 'cover' : 'contain'}; background: ${work.isImage ? 'transparent' : 'rgba(108, 196, 247, 0.1)'};">
@@ -382,10 +299,6 @@ async function loadFromGitHub() {
             <h3>${work.title}</h3>
             <p>${work.description}</p>
             <span class="work-item-type">${work.type}</span>
-            <div style="margin-top: 10px; font-size: 12px; color: rgba(255,255,255,0.6);">
-              📁 ${work.fileName} (${(work.fileSize / 1024 / 1024).toFixed(2)}MB)
-              <br>☁️ Stored on GitHub
-            </div>
             <div class="work-actions">
               <button onclick="viewGitHubWork(${index})">
                 <i class='bx bx-show'></i> View
@@ -393,7 +306,7 @@ async function loadFromGitHub() {
               <button onclick="downloadGitHubWork(${index})">
                 <i class='bx bx-download'></i> Download
               </button>
-              ${GITHUB_CONFIG.token ? `
+              ${showDelete ? `
                 <button onclick="deleteGitHubWork(${index})" style="background: #ff4d4d; border-color: #ff4d4d; color: #fff;">
                   <i class='bx bx-trash'></i> Delete
                 </button>
@@ -547,26 +460,29 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Global functions
-window.setupGitHub = setupGitHub;
-window.saveGitHubConfig = saveGitHubConfig;
-window.closeGitHubModal = closeGitHubModal;
 window.uploadToGitHub = uploadToGitHub;
 window.loadFromGitHub = loadFromGitHub;
 window.viewGitHubWork = viewGitHubWork;
 window.downloadGitHubWork = downloadGitHubWork;
 window.deleteGitHubWork = deleteGitHubWork;
 
-// Enable GitHub mode
+// Enable GitHub mode (if needed)
 window.useGitHubMode = function() {
   console.log('☁️ Switching to GitHub storage mode');
-  setupGitHub();
+  const storageMode = document.getElementById('storageMode');
+  if (storageMode) storageMode.textContent = 'GitHub';
+  window.uploadWork = uploadToGitHub;
+  window.loadWorks = loadFromGitHub;
+  loadFromGitHub();
 };
 
+// Console log
 console.log(`
 ☁️ GITHUB STORAGE READY
 ========================
 Commands:
 useGitHubMode() = Setup GitHub
+cleanDuplicates() = Remove duplicate works
 
 Benefits:
 ✅ Free unlimited storage
@@ -575,8 +491,111 @@ Benefits:
 ✅ Accessible anywhere
 
 Setup Required (for admin only):
-Personal access token
+Personal access token during login
 
 Max: 100MB per file
 ========================
 `);
+
+// Admin function to clean duplicates
+window.cleanDuplicates = async function() {
+  if (!isAdminAuthenticated || !GITHUB_CONFIG.token) {
+    alert('Please login as admin first (Press F9)');
+    return;
+  }
+  
+  if (!confirm('This will scan for and remove duplicate works. Continue?')) {
+    return;
+  }
+  
+  try {
+    const response = await fetch(
+      `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/works`,
+      {
+        headers: {
+          'Authorization': `token ${GITHUB_CONFIG.token}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      }
+    );
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch works');
+    }
+    
+    const files = await response.json();
+    const seenWorks = new Map(); // title+description -> file info
+    const duplicates = [];
+    
+    // Load all works and identify duplicates
+    for (const file of files) {
+      if (file.name.endsWith('.json')) {
+        const fileResponse = await fetch(file.download_url);
+        const workData = await fileResponse.json();
+        const key = `${workData.title}_${workData.description}`;
+        
+        if (seenWorks.has(key)) {
+          // This is a duplicate - keep the newer one
+          const existing = seenWorks.get(key);
+          const existingDate = new Date(existing.workData.uploadDate);
+          const currentDate = new Date(workData.uploadDate);
+          
+          if (currentDate > existingDate) {
+            // Current is newer, mark old one for deletion
+            duplicates.push(existing.file);
+            seenWorks.set(key, { workData, file });
+          } else {
+            // Existing is newer, mark current for deletion
+            duplicates.push(file);
+          }
+        } else {
+          seenWorks.set(key, { workData, file });
+        }
+      }
+    }
+    
+    if (duplicates.length === 0) {
+      alert('✅ No duplicates found!');
+      return;
+    }
+    
+    console.log(`Found ${duplicates.length} duplicate(s)`);
+    
+    // Delete duplicates
+    let deleted = 0;
+    for (const file of duplicates) {
+      try {
+        const deleteResponse = await fetch(
+          `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${file.path}`,
+          {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `token ${GITHUB_CONFIG.token}`,
+              'Accept': 'application/vnd.github.v3+json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              message: 'Remove duplicate work',
+              sha: file.sha,
+              branch: GITHUB_CONFIG.branch
+            })
+          }
+        );
+        
+        if (deleteResponse.ok) {
+          deleted++;
+          console.log(`Deleted duplicate: ${file.name}`);
+        }
+      } catch (error) {
+        console.error(`Failed to delete ${file.name}:`, error);
+      }
+    }
+    
+    alert(`✅ Cleaned up ${deleted} duplicate(s)!`);
+    loadFromGitHub(); // Reload works
+    
+  } catch (error) {
+    console.error('Cleanup failed:', error);
+    alert('Cleanup failed: ' + error.message);
+  }
+};

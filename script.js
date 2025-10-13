@@ -1,40 +1,15 @@
 // Global variables
 let isAdminAuthenticated = false;
 
-// ===== ADMIN ACCESS METHODS =====
-
-// Method 1: F9 key for admin access
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'F9') {
-    e.preventDefault();
-    console.log('🔑 F9 Admin key pressed');
-    
-    if (!isAdminAuthenticated) {
-      console.log('🔐 Showing admin login');
-      showAdminLogin();
-    } else {
-      console.log('🎛️ Toggling admin panel');
-      toggleAdminPanel();
-    }
-    return;
-  }
-  
-  // Ctrl+Shift+A (Windows) or Cmd+Shift+A (Mac)
-  if (e.shiftKey && (e.ctrlKey || e.metaKey) && e.key === 'A') {
-    e.preventDefault();
-    if (!isAdminAuthenticated) {
-      showAdminLogin();
-    } else {
-      toggleAdminPanel();
-    }
-  }
-});
-
-// Method 2: Click the logo 5 times quickly
-let logoClickCount = 0;
-let logoClickTimer = null;
-
+// Check session on page load
 document.addEventListener('DOMContentLoaded', function() {
+  // Check if admin was authenticated in this session
+  const sessionAuth = sessionStorage.getItem('adminAuthenticated');
+  if (sessionAuth === 'true') {
+    isAdminAuthenticated = true;
+    console.log('🔐 Admin session restored');
+  }
+
   const logo = document.querySelector('.logo');
   if (logo) {
     logo.addEventListener('click', function(e) {
@@ -78,6 +53,39 @@ document.addEventListener('DOMContentLoaded', function() {
   loadWorks();
 });
 
+// ===== ADMIN ACCESS METHODS =====
+
+// Method 1: F9 key for admin access
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'F9') {
+    e.preventDefault();
+    console.log('🔑 F9 Admin key pressed');
+    
+    if (!isAdminAuthenticated) {
+      console.log('🔐 Showing admin login');
+      showAdminLogin();
+    } else {
+      console.log('🎛️ Toggling admin panel');
+      toggleAdminPanel();
+    }
+    return;
+  }
+  
+  // Ctrl+Shift+A (Windows) or Cmd+Shift+A (Mac)
+  if (e.shiftKey && (e.ctrlKey || e.metaKey) && e.key === 'A') {
+    e.preventDefault();
+    if (!isAdminAuthenticated) {
+      showAdminLogin();
+    } else {
+      toggleAdminPanel();
+    }
+  }
+});
+
+// Method 2: Click the logo 5 times quickly
+let logoClickCount = 0;
+let logoClickTimer = null;
+
 // Method 4: Type "admin" anywhere on the page
 let typedKeys = '';
 document.addEventListener('keypress', function(e) {
@@ -116,7 +124,27 @@ function showAdminLogin() {
   
   if (password === "admin123") {
     isAdminAuthenticated = true;
+    sessionStorage.setItem('adminAuthenticated', 'true'); // Store in session
     console.log('✅ Admin authenticated successfully');
+    
+    // Prompt for GitHub token after password
+    const token = prompt("Enter GitHub Personal Access Token (for uploads/deletes):");
+    if (token) {
+      sessionStorage.setItem('githubToken', token);  // Store in sessionStorage for this session
+      console.log('✅ GitHub token set for this session');
+      // Update GITHUB_CONFIG.token if github_storage.js is loaded
+      if (typeof GITHUB_CONFIG !== 'undefined') {
+        GITHUB_CONFIG.token = token;
+        isGitHubConfigured = true;
+      }
+      // Refresh works to show delete button
+      if (typeof loadFromGitHub === 'function') {
+        loadFromGitHub();
+      }
+    } else {
+      alert("Token not entered. Uploads/deletes disabled for this session.");
+    }
+    
     toggleAdminPanel();
   } else if (password !== null) {
     alert("Incorrect password!");
@@ -124,6 +152,31 @@ function showAdminLogin() {
   } else {
     console.log('🚫 Password prompt cancelled');
   }
+}
+
+// Logout function for security
+function logoutAdmin() {
+  isAdminAuthenticated = false;
+  sessionStorage.removeItem('adminAuthenticated');
+  sessionStorage.removeItem('githubToken');
+  if (typeof GITHUB_CONFIG !== 'undefined') {
+    GITHUB_CONFIG.token = '';
+    isGitHubConfigured = false;
+  }
+  console.log('🔒 Admin logged out');
+  
+  // Reload works to hide delete buttons
+  if (typeof loadFromGitHub === 'function') {
+    loadFromGitHub();
+  }
+  
+  // Close admin panel
+  const panel = document.getElementById('adminPanel');
+  if (panel && panel.classList.contains('open')) {
+    toggleAdminPanel();
+  }
+  
+  alert('✅ Logged out successfully!');
 }
 
 function toggleAdminPanel() {
@@ -164,7 +217,7 @@ function initFileInputHandler() {
       const file = e.target.files[0];
       if (file) {
         fileLabel.textContent = file.name;
-        console.log('📎 File selected:', file.name);
+        console.log('🔎 File selected:', file.name);
       } else {
         fileLabel.textContent = 'Choose File (PNG, JPG, PDF, DOC)';
       }
@@ -330,7 +383,7 @@ function loadAlternativeWorks() {
           <p>${work.description}</p>
           <span class="work-item-type">${work.type}</span>
           <div style="margin-top: 10px; font-size: 12px; color: rgba(255,255,255,0.6);">
-            📁 ${work.fileName} (${(work.fileSize / 1024 / 1024).toFixed(2)}MB)
+            📄 ${work.fileName} (${(work.fileSize / 1024 / 1024).toFixed(2)}MB)
             <br>💾 Stored in Browser
           </div>
           <div class="work-actions">
@@ -435,6 +488,7 @@ window.filterWorks = filterWorks;
 window.closeModal = closeModal;
 window.viewAlternativeWork = viewAlternativeWork;
 window.downloadAlternativeWork = downloadAlternativeWork;
+window.logoutAdmin = logoutAdmin;
 
 console.log(`
 🔧 PORTFOLIO LOADED
