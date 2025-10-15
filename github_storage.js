@@ -201,7 +201,16 @@ async function uploadToGitHub(event) {
 }
 
 // Load works from GitHub (always attempts load with hard-coded repo, public access)
+let isLoadingWorks = false; // Prevent duplicate loads
+
 async function loadFromGitHub() {
+  // Prevent multiple simultaneous loads
+  if (isLoadingWorks) {
+    console.log('⏳ Already loading works, skipping duplicate call');
+    return;
+  }
+  
+  isLoadingWorks = true;
   const worksGrid = document.getElementById('worksGrid');
 
   try {
@@ -235,7 +244,7 @@ async function loadFromGitHub() {
         <div class="empty-state">
           <i class='bx bx-folder-open'></i>
           <h3>No works uploaded yet</h3>
-          <p>Coming soon!</p>
+          <p>Upload your first project to GitHub!</p>
         </div>
       `;
       return;
@@ -247,22 +256,24 @@ async function loadFromGitHub() {
 
     const files = await response.json();
     githubWorks = [];
-    const seenIds = new Set(); // Track unique work IDs to prevent duplicates
+    const seenTitles = new Set(); // Track titles to prevent duplicates
 
     for (const file of files) {
       if (file.name.endsWith('.json')) {
         try {
-          const fileResponse = await fetch(`${file.download_url}?t=${Date.now()}`);  // Cache-buster for individual files
+          const fileResponse = await fetch(`${file.download_url}?t=${Date.now()}`);
           const workData = await fileResponse.json();
           
-          // Skip if we've already loaded this work (by ID or title+uploadDate)
-          const uniqueKey = workData.id || `${workData.title}_${workData.uploadDate}`;
-          if (seenIds.has(uniqueKey)) {
-            console.log(`Skipping duplicate work: ${workData.title}`);
+          // Create unique identifier from title and upload date
+          const uniqueKey = `${workData.title.toLowerCase().trim()}_${workData.uploadDate}`;
+          
+          // Skip if we've already loaded this exact work
+          if (seenTitles.has(uniqueKey)) {
+            console.log(`⚠️ Skipping duplicate: ${workData.title}`);
             continue;
           }
-          seenIds.add(uniqueKey);
           
+          seenTitles.add(uniqueKey);
           workData.sha = file.sha;      // For delete
           workData.filePath = file.path; // For delete
           githubWorks.push(workData);
@@ -272,7 +283,17 @@ async function loadFromGitHub() {
       }
     }
 
+    // Remove exact duplicates based on title and description
+    githubWorks = githubWorks.filter((work, index, self) =>
+      index === self.findIndex((w) => 
+        w.title.toLowerCase().trim() === work.title.toLowerCase().trim() &&
+        w.description.toLowerCase().trim() === work.description.toLowerCase().trim()
+      )
+    );
+
     githubWorks.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
+
+    console.log(`📊 Loaded ${githubWorks.length} unique works from ${files.length} files`);
 
     if (githubWorks.length === 0) {
       worksGrid.innerHTML = `
@@ -319,6 +340,7 @@ async function loadFromGitHub() {
 
     worksGrid.innerHTML = worksHTML;
     console.log(`✅ Loaded ${githubWorks.length} works from GitHub`);
+    console.log('Works array:', githubWorks.map(w => w.title)); // Debug: show all titles
 
   } catch (error) {
     console.error('Failed to load works from GitHub:', error);
