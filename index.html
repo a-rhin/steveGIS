@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=4.0">
   <title>SteveGIS</title>
 </head>
 
@@ -15,18 +15,19 @@
   <header class="header">
     <a href="#home" class="logo"><strong>Steve ++</strong></a>
 
-    <div class="menu-toggle" id="menuToggle" onclick="toggleMenu()">
+    <!-- Hamburger Menu Icon (Mobile Only) -->
+    <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()" aria-label="Toggle menu">
       <span></span>
       <span></span>
       <span></span>
-    </div>
+    </button>
 
     <nav class="navbar" id="navbar">
-      <a href="#home" class="active" onclick="closeMenu()"><strong>Home</strong></a>
-      <a href="#about" onclick="closeMenu()"><strong>About</strong></a>
-      <a href="#services" onclick="closeMenu()"><strong>Services</strong></a>
-      <a href="#works" onclick="closeMenu()"><strong>My Works</strong></a>
-      <a href="#contact" onclick="closeMenu()"><strong>Let's Talk</strong></a>
+      <a href="#home" class="active" onclick="closeMobileMenu()"><strong>Home</strong></a>
+      <a href="#about" onclick="closeMobileMenu()"><strong>About</strong></a>
+      <a href="#services" onclick="closeMobileMenu()"><strong>Services</strong></a>
+      <a href="#works" onclick="closeMobileMenu()"><strong>My Works</strong></a>
+      <a href="#contact" onclick="closeMobileMenu()"><strong>Let's Talk</strong></a>
     </nav>
   </header>
 
@@ -204,7 +205,7 @@
   </footer>
 
   <!-- Main Scripts -->
-  <script src="script.js"></script>
-  <script src="github_storage.js"></script>
+  <script src="script.js?v=4.0"></script>
+  <script src="github_storage.js?v=4.0"></script>
 </body>
 </html>

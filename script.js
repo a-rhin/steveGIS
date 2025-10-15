@@ -53,6 +53,36 @@ document.addEventListener('DOMContentLoaded', function() {
   loadWorks();
 });
 
+// ===== MOBILE MENU FUNCTIONS =====
+
+function toggleMobileMenu() {
+  const navbar = document.getElementById('navbar');
+  const hamburger = document.getElementById('hamburger');
+  
+  if (navbar && hamburger) {
+    navbar.classList.toggle('mobile-active');
+    hamburger.classList.toggle('active');
+    
+    // Prevent body scroll when menu is open
+    if (navbar.classList.contains('mobile-active')) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+  }
+}
+
+function closeMobileMenu() {
+  const navbar = document.getElementById('navbar');
+  const hamburger = document.getElementById('hamburger');
+  
+  if (navbar && hamburger) {
+    navbar.classList.remove('mobile-active');
+    hamburger.classList.remove('active');
+    document.body.style.overflow = 'auto';
+  }
+}
+
 // ===== ADMIN ACCESS METHODS =====
 
 // Method 1: F9 key for admin access
@@ -459,29 +489,6 @@ function downloadAlternativeWork(workId) {
 
 // ===== SHARED FUNCTIONS =====
 
-// Mobile menu toggle
-function toggleMenu() {
-  const navbar = document.getElementById('navbar');
-  const menuToggle = document.getElementById('menuToggle');
-  
-  if (navbar && menuToggle) {
-    navbar.classList.toggle('active');
-    menuToggle.classList.toggle('active');
-    console.log('Menu toggled');
-  }
-}
-
-function closeMenu() {
-  const navbar = document.getElementById('navbar');
-  const menuToggle = document.getElementById('menuToggle');
-  
-  if (navbar && menuToggle) {
-    navbar.classList.remove('active');
-    menuToggle.classList.remove('active');
-    console.log('Menu closed');
-  }
-}
-
 function filterWorks(type) {
   const workItems = document.querySelectorAll('.work-item');
   const filterBtns = document.querySelectorAll('.filter-btn');
@@ -512,8 +519,8 @@ window.closeModal = closeModal;
 window.viewAlternativeWork = viewAlternativeWork;
 window.downloadAlternativeWork = downloadAlternativeWork;
 window.logoutAdmin = logoutAdmin;
-window.toggleMenu = toggleMenu;
-window.closeMenu = closeMenu;
+window.toggleMobileMenu = toggleMobileMenu;
+window.closeMobileMenu = closeMobileMenu;
 
 console.log(`
 🔧 PORTFOLIO LOADED
