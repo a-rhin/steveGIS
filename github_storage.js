@@ -416,21 +416,24 @@ function viewGitHubWork(index) {
       <p style="color: rgba(255,255,255,0.7); margin-top: 10px;">${work.fileName}</p>
     `;
   } else if (work.fileType === 'application/pdf') {
-    // For PDFs, embed using iframe or object
+    // For PDFs, use object tag with fallback
     modalBody.innerHTML = `
       <button class="modal-close" onclick="closeModal()">&times;</button>
       <div style="text-align: center; padding: 20px;">
         <h3 style="color: #6cc4f7; margin-bottom: 20px;">${work.title}</h3>
-        <div style="background: #fff; border-radius: 10px; overflow: hidden; margin: 20px 0;">
-          <iframe src="${work.base64Data}" 
-                  style="width: 100%; height: 600px; border: none;"
-                  title="${work.fileName}">
-          </iframe>
-        </div>
         <p style="color: rgba(255,255,255,0.8); margin: 15px 0;">${work.description}</p>
         <p style="color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 20px;">
           📄 ${work.fileName} • ${(work.fileSize / 1024 / 1024).toFixed(2)}MB
         </p>
+        <div style="background: #fff; border-radius: 10px; padding: 20px; margin: 20px 0;">
+          <object data="${work.base64Data}" type="application/pdf" style="width: 100%; height: 600px;">
+            <div style="text-align: center; padding: 40px;">
+              <i class='bx bx-file-blank' style="font-size: 64px; color: #ff4d4d;"></i>
+              <p style="color: #333; margin: 20px 0;">Your browser doesn't support inline PDF viewing.</p>
+              <p style="color: #666; margin-bottom: 20px;">Please download the PDF to view it.</p>
+            </div>
+          </object>
+        </div>
         <button onclick="downloadGitHubWork(${index})" 
                 style="padding: 12px 30px; background: #56a7f2; border: none; color: #fff; border-radius: 8px; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 600;">
           <i class='bx bx-download'></i> Download PDF
@@ -553,27 +556,27 @@ window.downloadGitHubWork = downloadGitHubWork;
 window.deleteGitHubWork = deleteGitHubWork;
 
 // Toggle description read more/less
-window.toggleDescription = function(index) {
-  console.log('Toggle called for index:', index);
+window.toggleDescription = function(uniqueId) {
+  console.log('Toggle called for uniqueId:', uniqueId);
   
-  const descShort = document.getElementById(`short-${index}`);
-  const descFull = document.getElementById(`full-${index}`);
-  const btn = document.getElementById(`btn-${index}`);
+  const descShort = document.getElementById(`short-${uniqueId}`);
+  const descFull = document.getElementById(`full-${uniqueId}`);
+  const btn = document.getElementById(`btn-${uniqueId}`);
   
   console.log('Elements found:', {descShort, descFull, btn});
   
   if (!descShort || !descFull || !btn) {
-    console.error(`Cannot find elements for index ${index}`);
+    console.error(`Cannot find elements for uniqueId ${uniqueId}`);
     return;
   }
   
   if (descFull.style.display === 'none' || descFull.style.display === '') {
-    console.log('Expanding description');
+    console.log('Expanding description for:', uniqueId);
     descShort.style.display = 'none';
     descFull.style.display = 'inline';
     btn.innerHTML = 'Read less ↑';
   } else {
-    console.log('Collapsing description');
+    console.log('Collapsing description for:', uniqueId);
     descShort.style.display = 'inline';
     descFull.style.display = 'none';
     btn.innerHTML = 'Read more →';
