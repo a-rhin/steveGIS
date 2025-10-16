@@ -779,6 +779,12 @@ footer p {
   overflow: auto;
 }
 
+/* Larger modal for PDFs */
+.modal-content:has(iframe) {
+  max-width: 95%;
+  max-height: 95%;
+}
+
 .modal-content img {
   max-width: 100%;
   height: auto;

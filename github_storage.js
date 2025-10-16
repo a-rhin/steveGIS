@@ -308,17 +308,51 @@ async function loadFromGitHub() {
 
     let worksHTML = '';
     githubWorks.forEach((work, index) => {
-      const previewSrc = work.isImage ? work.base64Data : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEzIDJMMTMuMDkgMi4yNkwyMC4yMiA5LjY3TDIwLjc4IDEwLjIzTDIxIDExVjIwQTIgMiAwIDAgMSAxOSAyMkg1QTIgMiAwIDAgMSAzIDIwVjRDMiAyIDAgMCAxIDUgMkgxM1pNMTkgMTFIMTVBMiAyIDAgMCAxIDEzIDlWNUg1VjIwSDE5VjExWk0xNSA5SDE4LjVMMTUgNS41Vjlask0iIGZpbGw9IiM2Y2M0ZjciLz4KPHN2Zz4K';
+      // Better preview for different file types
+      let previewSrc;
+      let previewStyle;
+      
+      if (work.isImage) {
+        previewSrc = work.base64Data;
+        previewStyle = 'object-fit: cover;';
+      } else if (work.fileType === 'application/pdf') {
+        // PDF icon with better styling
+        previewSrc = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwZGZHcmFkIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojZmY0ZDRkO3N0b3Atb3BhY2l0eToxIiAvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6I2ZmNmU2ZTtzdG9wLW9wYWNpdHk6MSIgLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0idXJsKCNwZGZHcmFkKSIvPjx0ZXh0IHg9IjUwJSIgeT0iNDAlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNjAiIGZpbGw9IiNmZmYiIGZvbnQtd2VpZ2h0PSJib2xkIj5QREY8L3RleHQ+PHRleHQgeD0iNTAlIiB5PSI2NSUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjgpIj5DbGljayB0byBWaWV3PC90ZXh0Pjwvc3ZnPg==';
+        previewStyle = 'object-fit: contain; background: linear-gradient(135deg, #ff4d4d 0%, #ff6e6e 100%);';
+      } else if (work.fileType.includes('word') || work.fileType.includes('document')) {
+        // Word document icon
+        previewSrc = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJkb2NHcmFkIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMjk3MmJjO3N0b3Atb3BhY2l0eToxIiAvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzQwOGZkZjtzdG9wLW9wYWNpdHk6MSIgLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0idXJsKCNkb2NHcmFkKSIvPjx0ZXh0IHg9IjUwJSIgeT0iNDAlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNTAiIGZpbGw9IiNmZmYiIGZvbnQtd2VpZ2h0PSJib2xkIj5ET0M8L3RleHQ+PHRleHQgeD0iNTAlIiB5PSI2NSUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjgpIj5DbGljayB0byBWaWV3PC90ZXh0Pjwvc3ZnPg==';
+        previewStyle = 'object-fit: contain; background: linear-gradient(135deg, #2972bc 0%, #408fdf 100%);';
+      } else {
+        // Generic file icon
+        previewSrc = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJmaWxlR3JhZCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6IzZjYzRmNztzdG9wLW9wYWNpdHk6MSIgLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiM1NmE3ZjI7c3RvcC1vcGFjaXR5OjEiIC8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9InVybCgjZmlsZUdyYWQpIi8+PHRleHQgeD0iNTAlIiB5PSI0MCUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSI1MCIgZmlsbD0iI2ZmZiIgZm9udC13ZWlnaHQ9ImJvbGQiPkZJTEU8L3RleHQ+PHRleHQgeD0iNTAlIiB5PSI2NSUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjgpIj5DbGljayB0byBEb3dubG9hZDwvdGV4dD48L3N2Zz4=';
+        previewStyle = 'object-fit: contain; background: linear-gradient(135deg, #6cc4f7 0%, #56a7f2 100%);';
+      }
 
       // Check if admin is currently authenticated for delete button
       const showDelete = typeof isAdminAuthenticated !== 'undefined' && isAdminAuthenticated && GITHUB_CONFIG.token;
 
+      // Truncate long descriptions
+      const maxDescLength = 120;
+      const truncatedDesc = work.description.length > maxDescLength 
+        ? work.description.substring(0, maxDescLength) + '...' 
+        : work.description;
+      const needsReadMore = work.description.length > maxDescLength;
+
       worksHTML += `
         <div class="work-item" data-type="${work.type}">
-          <img src="${previewSrc}" alt="${work.title}" style="width: 100%; height: 250px; object-fit: ${work.isImage ? 'cover' : 'contain'}; background: ${work.isImage ? 'transparent' : 'rgba(108, 196, 247, 0.1)'};">
+          <img src="${previewSrc}" alt="${work.title}" style="width: 100%; height: 250px; ${previewStyle}">
           <div class="work-item-content">
             <h3>${work.title}</h3>
-            <p>${work.description}</p>
+            <p class="work-description" id="desc-${index}">
+              <span class="desc-short">${truncatedDesc}</span>
+              ${needsReadMore ? `
+                <span class="desc-full" style="display: none;">${work.description}</span>
+                <button class="read-more-btn" onclick="toggleDescription(${index})" style="color: #6cc4f7; background: none; border: none; cursor: pointer; font-size: 13px; font-weight: 600; padding: 5px 0; margin-top: 5px; display: block;">
+                  Read more
+                </button>
+              ` : ''}
+            </p>
             <span class="work-item-type">${work.type}</span>
             <div class="work-actions">
               <button onclick="viewGitHubWork(${index})">
@@ -351,6 +385,8 @@ async function loadFromGitHub() {
         <p>Please check GitHub configuration</p>
       </div>
     `;
+  } finally {
+    isLoadingWorks = false; // Reset loading flag
   }
 }
 
@@ -372,6 +408,28 @@ function viewGitHubWork(index) {
       <img src="${work.base64Data}" alt="${work.fileName}" style="max-width: 100%; height: auto;">
       <h3 style="color: #6cc4f7; margin-top: 20px;">${work.title}</h3>
       <p style="color: rgba(255,255,255,0.7); margin-top: 10px;">${work.fileName}</p>
+    `;
+  } else if (work.fileType === 'application/pdf') {
+    // For PDFs, embed using iframe or object
+    modalBody.innerHTML = `
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+      <div style="text-align: center; padding: 20px;">
+        <h3 style="color: #6cc4f7; margin-bottom: 20px;">${work.title}</h3>
+        <div style="background: #fff; border-radius: 10px; overflow: hidden; margin: 20px 0;">
+          <iframe src="${work.base64Data}" 
+                  style="width: 100%; height: 600px; border: none;"
+                  title="${work.fileName}">
+          </iframe>
+        </div>
+        <p style="color: rgba(255,255,255,0.8); margin: 15px 0;">${work.description}</p>
+        <p style="color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 20px;">
+          📄 ${work.fileName} • ${(work.fileSize / 1024 / 1024).toFixed(2)}MB
+        </p>
+        <button onclick="downloadGitHubWork(${index})" 
+                style="padding: 12px 30px; background: #56a7f2; border: none; color: #fff; border-radius: 8px; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 600;">
+          <i class='bx bx-download'></i> Download PDF
+        </button>
+      </div>
     `;
   } else {
     modalBody.innerHTML = `
@@ -487,6 +545,23 @@ window.loadFromGitHub = loadFromGitHub;
 window.viewGitHubWork = viewGitHubWork;
 window.downloadGitHubWork = downloadGitHubWork;
 window.deleteGitHubWork = deleteGitHubWork;
+
+// Toggle description read more/less
+window.toggleDescription = function(index) {
+  const descShort = document.querySelector(`#desc-${index} .desc-short`);
+  const descFull = document.querySelector(`#desc-${index} .desc-full`);
+  const btn = document.querySelector(`#desc-${index} .read-more-btn`);
+  
+  if (descFull.style.display === 'none') {
+    descShort.style.display = 'none';
+    descFull.style.display = 'inline';
+    btn.textContent = 'Read less';
+  } else {
+    descShort.style.display = 'inline';
+    descFull.style.display = 'none';
+    btn.textContent = 'Read more';
+  }
+};
 
 // Enable GitHub mode (if needed)
 window.useGitHubMode = function() {
