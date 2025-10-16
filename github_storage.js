@@ -432,59 +432,35 @@ function viewGitHubWork(index) {
       const blob = new Blob([byteArray], { type: 'application/pdf' });
       const blobUrl = URL.createObjectURL(blob);
       
-      if (isMobile) {
-        // Mobile: Show info and download button (better UX)
-        modalBody.innerHTML = `
-          <button class="modal-close" onclick="closeModal(); URL.revokeObjectURL('${blobUrl}')">&times;</button>
-          <div style="text-align: center; padding: 20px;">
-            <div style="background: linear-gradient(135deg, #ff4d4d 0%, #ff6e6e 100%); border-radius: 15px; padding: 60px 20px; margin: 20px 0;">
-              <i class='bx bx-file-pdf' style="font-size: 80px; color: #fff; margin-bottom: 15px;"></i>
-              <p style="color: #fff; font-size: 18px; font-weight: 600;">PDF Document</p>
-            </div>
-            <h3 style="color: #6cc4f7; margin: 20px 0 10px;">${work.title}</h3>
-            <p style="color: rgba(255,255,255,0.8); margin: 10px 0; font-size: 14px; line-height: 1.6;">${work.description}</p>
-            <p style="color: rgba(255,255,255,0.6); font-size: 13px; margin: 15px 0;">
-              📄 ${work.fileName}<br>
-              💾 ${(work.fileSize / 1024 / 1024).toFixed(2)}MB
-            </p>
-            <div style="margin-top: 25px; display: flex; flex-direction: column; gap: 12px;">
-              <a href="${blobUrl}" target="_blank" 
-                 style="display: inline-block; padding: 14px 30px; background: #56a7f2; color: #fff; border-radius: 8px; text-decoration: none; font-family: 'Poppins', sans-serif; font-weight: 600; transition: all 0.3s ease;">
-                <i class='bx bx-show'></i> Open PDF in New Tab
-              </a>
-              <button onclick="downloadGitHubWork(${index})" 
-                      style="padding: 14px 30px; background: rgba(255,255,255,0.1); border: 2px solid #56a7f2; color: #fff; border-radius: 8px; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 600; transition: all 0.3s ease;">
-                <i class='bx bx-download'></i> Download PDF
-              </button>
-            </div>
-            <p style="color: rgba(255,255,255,0.5); font-size: 12px; margin-top: 20px;">
-              💡 Tip: Opening in new tab allows full scrolling on mobile
-            </p>
+      // Same experience for all devices - cleaner and more consistent
+      modalBody.innerHTML = `
+        <button class="modal-close" onclick="closeModal(); URL.revokeObjectURL('${blobUrl}')">&times;</button>
+        <div style="text-align: center; padding: 30px;">
+          <div style="background: linear-gradient(135deg, #ff4d4d 0%, #ff6e6e 100%); border-radius: 15px; padding: 60px 30px; margin: 20px 0; box-shadow: 0 10px 30px rgba(255, 77, 77, 0.3);">
+            <i class='bx bx-file-pdf' style="font-size: 80px; color: #fff; margin-bottom: 15px; display: block;"></i>
+            <p style="color: #fff; font-size: 20px; font-weight: 600;">PDF Document</p>
           </div>
-        `;
-      } else {
-        // Desktop: Show PDF viewer
-        modalBody.innerHTML = `
-          <button class="modal-close" onclick="closeModal(); URL.revokeObjectURL('${blobUrl}')">&times;</button>
-          <div style="text-align: center; padding: 20px;">
-            <h3 style="color: #6cc4f7; margin-bottom: 15px;">${work.title}</h3>
-            <p style="color: rgba(255,255,255,0.8); margin: 10px 0; font-size: 14px;">${work.description}</p>
-            <p style="color: rgba(255,255,255,0.6); font-size: 13px; margin-bottom: 15px;">
-              📄 ${work.fileName} • ${(work.fileSize / 1024 / 1024).toFixed(2)}MB
-            </p>
-            <div style="background: #fff; border-radius: 10px; overflow: hidden; margin: 15px 0; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
-              <iframe src="${blobUrl}" 
-                      style="width: 100%; height: 70vh; min-height: 500px; border: none;"
-                      title="${work.fileName}">
-              </iframe>
-            </div>
+          <h3 style="color: #6cc4f7; margin: 25px 0 15px; font-size: 24px;">${work.title}</h3>
+          <p style="color: rgba(255,255,255,0.8); margin: 15px auto; font-size: 15px; line-height: 1.6; max-width: 600px;">${work.description}</p>
+          <p style="color: rgba(255,255,255,0.6); font-size: 14px; margin: 20px 0;">
+            📄 ${work.fileName}<br>
+            💾 ${(work.fileSize / 1024 / 1024).toFixed(2)}MB • ${isMobile ? 'Mobile' : 'Desktop'} View
+          </p>
+          <div style="margin-top: 30px; display: flex; ${isMobile ? 'flex-direction: column;' : ''} gap: 15px; justify-content: center; max-width: 500px; margin-left: auto; margin-right: auto;">
+            <a href="${blobUrl}" target="_blank" 
+               style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 15px 35px; background: #56a7f2; color: #fff; border-radius: 10px; text-decoration: none; font-family: 'Poppins', sans-serif; font-weight: 600; transition: all 0.3s ease; flex: 1; box-shadow: 0 4px 15px rgba(86, 167, 242, 0.3);">
+              <i class='bx bx-show' style="font-size: 20px;"></i> Open PDF in New Tab
+            </a>
             <button onclick="downloadGitHubWork(${index})" 
-                    style="padding: 12px 30px; background: #56a7f2; border: none; color: #fff; border-radius: 8px; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 600; transition: all 0.3s ease;">
-              <i class='bx bx-download'></i> Download PDF
+                    style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 15px 35px; background: rgba(255,255,255,0.1); border: 2px solid #56a7f2; color: #fff; border-radius: 10px; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 600; transition: all 0.3s ease; flex: 1;">
+              <i class='bx bx-download' style="font-size: 20px;"></i> Download PDF
             </button>
           </div>
-        `;
-      }
+          <p style="color: rgba(255,255,255,0.5); font-size: 13px; margin-top: 25px; font-style: italic;">
+            💡 Opens in new tab with full PDF viewer controls
+          </p>
+        </div>
+      `;
     } catch (error) {
       console.error('Error displaying PDF:', error);
       modalBody.innerHTML = `
