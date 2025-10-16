@@ -416,30 +416,60 @@ function viewGitHubWork(index) {
       <p style="color: rgba(255,255,255,0.7); margin-top: 10px;">${work.fileName}</p>
     `;
   } else if (work.fileType === 'application/pdf') {
-    // For PDFs, use object tag with fallback
-    modalBody.innerHTML = `
-      <button class="modal-close" onclick="closeModal()">&times;</button>
-      <div style="text-align: center; padding: 20px;">
-        <h3 style="color: #6cc4f7; margin-bottom: 20px;">${work.title}</h3>
-        <p style="color: rgba(255,255,255,0.8); margin: 15px 0;">${work.description}</p>
-        <p style="color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 20px;">
-          📄 ${work.fileName} • ${(work.fileSize / 1024 / 1024).toFixed(2)}MB
-        </p>
-        <div style="background: #fff; border-radius: 10px; padding: 20px; margin: 20px 0;">
-          <object data="${work.base64Data}" type="application/pdf" style="width: 100%; height: 600px;">
-            <div style="text-align: center; padding: 40px;">
-              <i class='bx bx-file-blank' style="font-size: 64px; color: #ff4d4d;"></i>
-              <p style="color: #333; margin: 20px 0;">Your browser doesn't support inline PDF viewing.</p>
-              <p style="color: #666; margin-bottom: 20px;">Please download the PDF to view it.</p>
-            </div>
-          </object>
+    // Convert base64 to blob URL for PDF viewing
+    try {
+      // Extract base64 data (remove data:application/pdf;base64, prefix)
+      const base64Data = work.base64Data.split(',')[1];
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/pdf' });
+      const blobUrl = URL.createObjectURL(blob);
+      
+      modalBody.innerHTML = `
+        <button class="modal-close" onclick="closeModal(); URL.revokeObjectURL('${blobUrl}')">&times;</button>
+        <div style="text-align: center; padding: 20px;">
+          <h3 style="color: #6cc4f7; margin-bottom: 15px;">${work.title}</h3>
+          <p style="color: rgba(255,255,255,0.8); margin: 10px 0; font-size: 14px;">${work.description}</p>
+          <p style="color: rgba(255,255,255,0.6); font-size: 13px; margin-bottom: 15px;">
+            📄 ${work.fileName} • ${(work.fileSize / 1024 / 1024).toFixed(2)}MB
+          </p>
+          <div style="background: #fff; border-radius: 10px; overflow: hidden; margin: 15px 0; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+            <iframe src="${blobUrl}" 
+                    style="width: 100%; height: 70vh; min-height: 500px; border: none;"
+                    title="${work.fileName}">
+            </iframe>
+          </div>
+          <button onclick="downloadGitHubWork(${index})" 
+                  style="padding: 12px 30px; background: #56a7f2; border: none; color: #fff; border-radius: 8px; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 600; transition: all 0.3s ease;">
+            <i class='bx bx-download'></i> Download PDF
+          </button>
         </div>
-        <button onclick="downloadGitHubWork(${index})" 
-                style="padding: 12px 30px; background: #56a7f2; border: none; color: #fff; border-radius: 8px; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 600;">
-          <i class='bx bx-download'></i> Download PDF
-        </button>
-      </div>
-    `;
+      `;
+    } catch (error) {
+      console.error('Error displaying PDF:', error);
+      modalBody.innerHTML = `
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <div style="text-align: center; padding: 40px;">
+          <i class='bx bx-file-blank' style="font-size: 64px; color: #ff4d4d; margin-bottom: 20px;"></i>
+          <h3 style="color: #6cc4f7; margin-bottom: 20px;">${work.title}</h3>
+          <p style="color: rgba(255,255,255,0.8); margin-bottom: 10px;">Cannot preview this PDF in browser</p>
+          <p style="color: rgba(255,255,255,0.6); margin-bottom: 30px; font-size: 14px;">
+            ${work.description}
+          </p>
+          <p style="color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 20px;">
+            📄 ${work.fileName} • ${(work.fileSize / 1024 / 1024).toFixed(2)}MB
+          </p>
+          <button onclick="downloadGitHubWork(${index})" 
+                  style="padding: 12px 30px; background: #56a7f2; border: none; color: #fff; border-radius: 8px; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 600;">
+            <i class='bx bx-download'></i> Download PDF to View
+          </button>
+        </div>
+      `;
+    }
   } else {
     modalBody.innerHTML = `
       <button class="modal-close" onclick="closeModal()">&times;</button>
