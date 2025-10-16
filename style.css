@@ -515,8 +515,9 @@ footer p {
 }
 
 .work-item:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 20px 40px rgba(108, 196, 247, 0.2);
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(108, 196, 247, 0.3);
+  border-color: rgba(108, 196, 247, 0.5);
 }
 
 .work-item img {

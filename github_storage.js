@@ -307,6 +307,8 @@ async function loadFromGitHub() {
     }
 
     let worksHTML = '';
+    const renderTime = Date.now(); // Unique identifier for this render
+    
     githubWorks.forEach((work, index) => {
       // Better preview for different file types
       let previewSrc;
@@ -338,21 +340,25 @@ async function loadFromGitHub() {
         ? work.description.substring(0, maxDescLength) + '...' 
         : work.description;
       const needsReadMore = work.description.length > maxDescLength;
+      
+      // Create unique IDs with timestamp
+      const uniqueId = `${renderTime}-${index}`;
 
       worksHTML += `
-        <div class="work-item" data-type="${work.type}">
-          <img src="${previewSrc}" alt="${work.title}" style="width: 100%; height: 250px; ${previewStyle}">
+        <div class="work-item work-item-${index}" data-type="${work.type}">
+          <img src="${previewSrc}" alt="${work.title}" onclick="viewGitHubWork(${index})" style="width: 100%; height: 250px; ${previewStyle} cursor: pointer;">
           <div class="work-item-content">
-            <h3>${work.title}</h3>
-            <p class="work-description" id="desc-${index}">
-              <span class="desc-short">${truncatedDesc}</span>
+            <h3 onclick="viewGitHubWork(${index})" style="cursor: pointer;">${work.title}</h3>
+            <div class="work-description">
+              <span id="short-${uniqueId}">${truncatedDesc}</span>
               ${needsReadMore ? `
-                <span class="desc-full" style="display: none;">${work.description}</span>
-                <button class="read-more-btn" onclick="toggleDescription(${index})" style="color: #6cc4f7; background: none; border: none; cursor: pointer; font-size: 13px; font-weight: 600; padding: 5px 0; margin-top: 5px; display: block;">
-                  Read more
-                </button>
+                <span id="full-${uniqueId}" style="display: none;">${work.description}</span>
+                <br>
+                <a href="javascript:void(0)" id="btn-${uniqueId}" onclick="toggleDescription('${uniqueId}')" style="color: #6cc4f7; text-decoration: none; cursor: pointer; font-size: 13px; font-weight: 600; padding: 5px 0; margin-top: 5px; display: inline-block;">
+                  Read more →
+                </a>
               ` : ''}
-            </p>
+            </div>
             <span class="work-item-type">${work.type}</span>
             <div class="work-actions">
               <button onclick="viewGitHubWork(${index})">
@@ -548,18 +554,29 @@ window.deleteGitHubWork = deleteGitHubWork;
 
 // Toggle description read more/less
 window.toggleDescription = function(index) {
-  const descShort = document.querySelector(`#desc-${index} .desc-short`);
-  const descFull = document.querySelector(`#desc-${index} .desc-full`);
-  const btn = document.querySelector(`#desc-${index} .read-more-btn`);
+  console.log('Toggle called for index:', index);
   
-  if (descFull.style.display === 'none') {
+  const descShort = document.getElementById(`short-${index}`);
+  const descFull = document.getElementById(`full-${index}`);
+  const btn = document.getElementById(`btn-${index}`);
+  
+  console.log('Elements found:', {descShort, descFull, btn});
+  
+  if (!descShort || !descFull || !btn) {
+    console.error(`Cannot find elements for index ${index}`);
+    return;
+  }
+  
+  if (descFull.style.display === 'none' || descFull.style.display === '') {
+    console.log('Expanding description');
     descShort.style.display = 'none';
     descFull.style.display = 'inline';
-    btn.textContent = 'Read less';
+    btn.innerHTML = 'Read less ↑';
   } else {
+    console.log('Collapsing description');
     descShort.style.display = 'inline';
     descFull.style.display = 'none';
-    btn.textContent = 'Read more';
+    btn.innerHTML = 'Read more →';
   }
 };
 
